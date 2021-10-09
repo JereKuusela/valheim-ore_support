@@ -16,7 +16,11 @@ namespace OreSupport {
       return obj;
     }
     ///<summary>Creates a renderer with a vertical line (relative to the object).</summary>
-    public static GameObject DrawBox(MonoBehaviour parent, Color color, float width, string name, Vector3 center, Vector3 extents) {
+    public static GameObject DrawBox(string tag, MonoBehaviour parent, Color color, float width, Vector3 center, Vector3 extents) {
+      return DrawBox(tag, parent.gameObject, color, width, center, extents);
+    }
+    ///<summary>Creates a renderer with a vertical line (relative to the object).</summary>
+    public static GameObject DrawBox(string tag, GameObject parent, Color color, float width, Vector3 center, Vector3 extents) {
       var corners = new Vector3[] {
         new Vector3(center.x - extents.x, center.y - extents.y, center.z - extents.z),
         new Vector3(center.x - extents.x, center.y - extents.y, center.z + extents.z),
@@ -27,7 +31,7 @@ namespace OreSupport {
         new Vector3(center.x + extents.x, center.y + extents.y, center.z - extents.z),
         new Vector3(center.x + extents.x, center.y + extents.y, center.z + extents.z),
       };
-      var obj = CreateObject(parent.gameObject, name, true);
+      var obj = CreateObject(parent, tag, true);
       for (var i = 0; i < corners.Length; i++) {
         var start = corners[i];
         for (var j = i + 1; j < corners.Length; j++) {
@@ -37,7 +41,7 @@ namespace OreSupport {
           if (start.y == end.y) same++;
           if (start.z == end.z) same++;
           if (same != 2) continue;
-          DrawLineSub(CreateObject(obj, name), corners[i], corners[j], color, width);
+          DrawLineSub(CreateObject(obj), corners[i], corners[j], color, width);
         }
       }
       Drawer.AddBoxCollider(obj, center, extents * 2.0f);

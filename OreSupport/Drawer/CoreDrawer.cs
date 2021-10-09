@@ -33,20 +33,22 @@ namespace OreSupport {
     public string text;
   }
   /// <summary>Provides a way to distinguish renderers.</summary>
-  public class CustomTag : MonoBehaviour {
+  public class Visualization : MonoBehaviour {
     public string customTag;
   }
 
   public partial class Drawer : Component {
     ///<summary>Creates the base object for drawing.</summary>
-    private static GameObject CreateObject(GameObject parent, string name, bool fixRotation = false) {
+    private static GameObject CreateObject(GameObject parent, string tag = "", bool fixRotation = false) {
       var obj = new GameObject();
       obj.layer = LayerMask.NameToLayer(Constants.TriggerLayer);
-      obj.name = name;
+      obj.name = tag;
       obj.transform.parent = parent.transform;
       obj.transform.localPosition = Vector3.zero;
       if (!fixRotation)
         obj.transform.localRotation = Quaternion.identity;
+      if (tag != "")
+        AddTag(obj, tag);
       return obj;
     }
     ///<summary>Creates the line renderer object.</summary>
@@ -61,7 +63,7 @@ namespace OreSupport {
       material.SetTexture("_MainTex", texture);
       renderer.material = material;
       renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-      renderer.widthMultiplier = width;
+      renderer.widthMultiplier = width / 100f;
       return renderer;
     }
     ///<summary>Changes object color.</summary>
@@ -72,7 +74,7 @@ namespace OreSupport {
     ///<summary>Changes object line width.</summary>
     private static void ChangeLineWidth(GameObject obj, float width) {
       foreach (var renderer in obj.GetComponentsInChildren<LineRenderer>(true))
-        renderer.widthMultiplier = width;
+        renderer.widthMultiplier = width / 100f;
     }
     ///<summary>Adds a custom text with a title and text to a given object.</summary>
     public static void AddText(GameObject obj, string title, string text) {
@@ -82,26 +84,26 @@ namespace OreSupport {
     }
     ///<summary>Adds a tag to a given renderer so it can be found later.</summary>
     public static void AddTag(GameObject obj, string tag) {
-      obj.AddComponent<CustomTag>().customTag = tag;
+      obj.AddComponent<Visualization>().customTag = tag;
     }
     ///<summary>Removes visuals with a given tag.</summary>
-    public static void Remove(MonoBehaviour obj, string tag) {
-      foreach (var customTag in obj.GetComponentsInChildren<CustomTag>(true)) {
-        if (customTag.customTag == tag) Destroy(customTag.gameObject.gameObject);
+    public static void Remove(string tag) {
+      foreach (var obj in Resources.FindObjectsOfTypeAll<Visualization>()) {
+        if (obj.customTag == tag) Destroy(obj.gameObject);
       }
     }
     ///<summary>Sets colors to visuals with a given tag.</summary>
     public static void SetColor(string tag, Color color) {
-      foreach (var customTag in Resources.FindObjectsOfTypeAll<CustomTag>()) {
+      foreach (var customTag in Resources.FindObjectsOfTypeAll<Visualization>()) {
         if (customTag.customTag == tag)
-          ChangeColor(customTag.gameObject.gameObject, color);
+          ChangeColor(customTag.gameObject, color);
       }
     }
     ///<summary>Sets line width to visuals with a given tag.</summary>
     public static void SetLineWidth(string tag, float width) {
-      foreach (var customTag in Resources.FindObjectsOfTypeAll<CustomTag>()) {
+      foreach (var customTag in Resources.FindObjectsOfTypeAll<Visualization>()) {
         if (customTag.customTag == tag)
-          ChangeLineWidth(customTag.gameObject.gameObject, width);
+          ChangeLineWidth(customTag.gameObject, width);
       }
     }
   }

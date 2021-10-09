@@ -1,8 +1,8 @@
 {
   "name": "Ore_Support",
-  "version_number": "1.0.0",
+  "version_number": "1.1.0",
   "website_url": "https://github.com/JereKuusela/valheim-ore_support",
-  "description": "This mod shows supporting bounding boxes for mine rocks which makes collapsiong them much easier.",
+  "description": "5hows supporting bounding boxes for mine rocks which makes collapsing them much easier. By default only activates when only some parts remain.",
   "dependencies": [
     "denikson-BepInExPack_Valheim-5.4.1501"
   ]
