@@ -87,8 +87,8 @@ namespace OreSupport {
       obj.AddComponent<Visualization>().customTag = tag;
     }
     ///<summary>Removes visuals with a given tag.</summary>
-    public static void Remove(string tag) {
-      foreach (var obj in Resources.FindObjectsOfTypeAll<Visualization>()) {
+    public static void Remove(MonoBehaviour parent, string tag) {
+      foreach (var obj in parent.GetComponentsInChildren<Visualization>(true)) {
         if (obj.customTag == tag) Destroy(obj.gameObject);
       }
     }

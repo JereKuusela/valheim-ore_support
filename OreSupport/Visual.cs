@@ -32,10 +32,11 @@ namespace OreSupport {
 
     private static Collider[] tempColliders = new Collider[128];
     private static ISet<int> supportedAreas = new HashSet<int>();
-    private static void Clear() {
-      Drawer.Remove(Tag.MineRock);
-      Drawer.Remove(Tag.ClearedMineRock);
-      Drawer.Remove(Tag.Destructible);
+    private static void Clear(MineRock5 obj) {
+      if (!obj) return;
+      Drawer.Remove(obj, Tag.MineRock);
+      Drawer.Remove(obj, Tag.ClearedMineRock);
+      Drawer.Remove(obj, Tag.Destructible);
 
     }
     private static IEnumerable<Collider> Filter(IEnumerable<Collider> colliders, MineRock5 obj, object area) {
@@ -47,13 +48,26 @@ namespace OreSupport {
         return true;
       });
     }
+    private static bool CheckColliders(IEnumerable<Collider> colliders, MineRock5 obj, List<Box> boxes, int groundLayer) {
+      if (Settings.ShowSupporting) {
+        var supportingColliders = colliders.Where(collider => Patch.MineRock5_GetSupport(obj, collider));
+        var objectColliders = supportingColliders.Where(collider => collider.gameObject.layer != groundLayer);
+        foreach (var collider in objectColliders)
+          boxes.Add(new Box(Tag.Destructible, obj.gameObject, collider.bounds.center - obj.transform.position, collider.bounds.extents, "Supports mine rock", ""));
+        return supportingColliders.Count() > 0;
+      } else {
+        return colliders.Any(collider => Patch.MineRock5_GetSupport(obj, collider));
+      }
+    }
+
     public static void DrawSupport(MineRock5 obj, bool update) {
+      Clear(Visual.Tracked);
       Visual.Tracked = obj;
-      Clear();
       if (!update) supportedAreas.Clear();
-      if (Settings.LineWidth == 0) return;
+      if (Settings.LineWidth == 0 || Settings.MaxBoxes == 0) return;
       var areas = Patch.HitAreas(obj);
       if (areas.Count() < Settings.MinSize) return;
+      if (areas.Where(area => Patch.Health(area) > 0f).Count() > Settings.MaxParts) return;
       var index = -1;
       var supportedCount = 0;
       var groundLayer = Patch.GroundLayer(obj);
@@ -69,22 +83,14 @@ namespace OreSupport {
         var mask = Patch.RayMask(obj);
         var num = Physics.OverlapBoxNonAlloc(obj.transform.position + pos, size, tempColliders, rot, mask);
         var colliders = Filter(tempColliders.Take(num), obj, area);
-        var supportingColliders = colliders.Where(collider => Patch.MineRock5_GetSupport(obj, collider));
-        var objectColliders = supportingColliders.Where(collider => collider.gameObject.layer != groundLayer);
-        foreach (var collider in objectColliders)
-          boxes.Add(new Box(Tag.Destructible, collider.gameObject, Vector3.zero, collider.bounds.extents, "Supports mine rock", ""));
-        var supported = supportingColliders.Count() > 0;
-        if (supported) {
-          supportedCount++;
-          supportedAreas.Add(index);
-        }
+        var supported = CheckColliders(colliders, obj, boxes, groundLayer);
         var wasSupported = supportedAreas.Contains(index);
         if (supported || wasSupported) {
           var tag = supported ? Tag.MineRock : Tag.ClearedMineRock;
           boxes.Add(new Box(tag, obj.gameObject, pos, size, "Size: " + Format.Coordinates(2 * size, "F1"), "Index: " + Format.Int(index)));
         }
       }
-      if (supportedCount > Settings.MaxAmount) return;
+      if (supportedCount > Settings.MaxBoxes) return;
       foreach (var box in boxes) box.Draw();
     }
   }

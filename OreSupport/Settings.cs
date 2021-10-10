@@ -12,22 +12,28 @@ namespace OreSupport {
     public static float LineWidth => Math.Max(0.01f, configLineWidth.Value);
     public static ConfigEntry<float> configRefreshInterval;
     public static float RefreshInterval => Math.Max(1f, configRefreshInterval.Value);
-    public static ConfigEntry<int> configMaxAmount;
-    public static int MaxAmount => configMaxAmount.Value;
+    public static ConfigEntry<int> configMaxBoxes;
+    public static int MaxBoxes => configMaxBoxes.Value;
     public static ConfigEntry<int> configMinSize;
     public static int MinSize => configMinSize.Value;
+    public static ConfigEntry<int> configMaxParts;
+    public static int MaxParts => configMaxParts.Value;
     public static ConfigEntry<string> configMineRockColor;
     public static Color MineRockColor => ParseColor(configMineRockColor.Value);
     public static ConfigEntry<string> configClearedMineRockColor;
     public static Color ClearedMineRockColor => ParseColor(configClearedMineRockColor.Value);
     public static ConfigEntry<string> configDestructibleColor;
     public static Color DestructibleColor => ParseColor(configDestructibleColor.Value);
+    public static ConfigEntry<bool> configShowSupporting;
+    public static bool ShowSupporting => configShowSupporting.Value;
     public static void Init(ConfigFile config) {
       var section = "General";
-      configRefreshInterval = config.Bind(section, "Refresh interval", 5f, new ConfigDescription("How often the support is checked.", new AcceptableValueRange<float>(1f, 60f)));
-      configMaxAmount = config.Bind(section, "Max pieces", 50, new ConfigDescription("Max amount of boxes before showing any (0 to disable).", new AcceptableValueRange<int>(0, 100)));
-      configMinSize = config.Bind(section, "Min size", 10, new ConfigDescription("Minimum amount of pieces to display any boxes.", new AcceptableValueRange<int>(0, 150)));
+      configRefreshInterval = config.Bind(section, "Refresh interval", 5f, new ConfigDescription("How often the support is checked. Higher values lower performance.", new AcceptableValueRange<float>(1f, 60f)));
+      configMaxBoxes = config.Bind(section, "Max boxes", 50, new ConfigDescription("Maximum amount of boxes to display. Higher values lower performance.", new AcceptableValueRange<int>(0, 200)));
+      configMinSize = config.Bind(section, "Min size", 10, new ConfigDescription("Minimum amount of pieces to display any boxes.", new AcceptableValueRange<int>(0, 200)));
+      configMaxParts = config.Bind(section, "Max parts", 100, new ConfigDescription("Maximum amount of remaining parts before showing any boxes. Higher values lower performance.", new AcceptableValueRange<int>(0, 200)));
       configLineWidth = config.Bind(section, "Line width", 2f, new ConfigDescription("Line width of the bounding boxes.", new AcceptableValueRange<float>(1f, 100f)));
+      configShowSupporting = config.Bind(section, "Supporting objects", true, "Show supporting objects. Enabling lowers performance.");
       configLineWidth.SettingChanged += (s, e) => {
         Drawer.SetLineWidth(Tag.MineRock, LineWidth);
         Drawer.SetLineWidth(Tag.Destructible, LineWidth);

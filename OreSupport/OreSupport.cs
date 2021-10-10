@@ -3,7 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace OreSupport {
-  [BepInPlugin("valheim.jerekuusela.ore_support", "OreSupport", "1.1.0.0")]
+  [BepInPlugin("valheim.jerekuusela.ore_support", "OreSupport", "1.2.0.0")]
   public class OreSupport : BaseUnityPlugin {
     public void Awake() {
       Settings.Init(Config);
