@@ -11,6 +11,8 @@ Shows supporting bounding boxes for mine rocks which makes collapsing them much 
 
 # Instructions
 
+Use "/bind KEY ore_support" to quickly toggle the mod on/off with a keypress.
+
 Mine rocks like copper or silver deposits consists of multiple parts. These parts are automatically destroyed when not supported by anything.
 
 The game uses axis aligned bounding boxes for checking the support which makes it difficult to determine which parts are preventing the deposit from collapsing.
@@ -20,8 +22,6 @@ This mod will visualize those boxes after enough of the deposit has been destroy
 - Red color indicates a part that is being supported by terrain or other object.
 - Green color indicates a part that is no longer supported but the game hasn't updated its state yet (only updated when a part is destroyed).
 - Yellow color indicates a object that is supporting the deposit.
-
-For quickly toggling the mod on/off with a keypress, use "bind KEY ore_support".
 
 # Configuration
 
@@ -40,6 +40,8 @@ After first start up, the config file can be found in the \<GameDirectory\>\BepI
 
 # Changelog
 
+- v1.4.0:
+	- Increased default values for Min size (to disable for Muddy scrap piles) and Max boxes/parts to always show.
 - v1.3.0:
 	- Added setting to enable or disable this mod.
 	- Added command "ore_support" to toggle enable/disable.

@@ -3,7 +3,7 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace OreSupport {
-  [BepInPlugin("valheim.jerekuusela.ore_support", "OreSupport", "1.3.0.0")]
+  [BepInPlugin("valheim.jerekuusela.ore_support", "OreSupport", "1.4.0.0")]
   public class OreSupport : BaseUnityPlugin {
     public void Awake() {
       Settings.Init(Config);
@@ -18,6 +18,7 @@ namespace OreSupport {
     private static void InitCommands() {
       new Terminal.ConsoleCommand("ore_support", "Toggles mine rock support visibility.", delegate (Terminal.ConsoleEventArgs args) {
         Settings.configEnable.Value = !Settings.Enable;
+        args.Context.AddString("Ore support " + (Settings.Enable ? "enabled" : "disabled") + ".");
         SupportUpdater.UpdateSupport();
       });
     }

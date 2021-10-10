@@ -32,9 +32,9 @@ namespace OreSupport {
       var section = "General";
       configEnable = config.Bind(section, "Enabled", true, "Whether this mod is enabled. Can be toggled with command ore_support.");
       configRefreshInterval = config.Bind(section, "Refresh interval", 5f, new ConfigDescription("How often the support is checked. Higher values lower performance.", new AcceptableValueRange<float>(1f, 60f)));
-      configMaxBoxes = config.Bind(section, "Max boxes", 50, new ConfigDescription("Maximum amount of boxes to display. Higher values lower performance.", new AcceptableValueRange<int>(0, 200)));
+      configMaxBoxes = config.Bind(section, "Max boxes", 200, new ConfigDescription("Maximum amount of boxes to display. Higher values lower performance.", new AcceptableValueRange<int>(0, 200)));
       configMinSize = config.Bind(section, "Min size", 75, new ConfigDescription("Minimum amount of pieces to display any boxes.", new AcceptableValueRange<int>(0, 200)));
-      configMaxParts = config.Bind(section, "Max parts", 100, new ConfigDescription("Maximum amount of remaining parts before showing any boxes. Higher values lower performance.", new AcceptableValueRange<int>(0, 200)));
+      configMaxParts = config.Bind(section, "Max parts", 200, new ConfigDescription("Maximum amount of remaining parts before showing any boxes. Higher values lower performance.", new AcceptableValueRange<int>(0, 200)));
       configLineWidth = config.Bind(section, "Line width", 2f, new ConfigDescription("Line width of the bounding boxes.", new AcceptableValueRange<float>(1f, 100f)));
       configShowSupporting = config.Bind(section, "Supporting objects", true, "Show supporting objects. Enabling lowers performance.");
       configLineWidth.SettingChanged += (s, e) => {
