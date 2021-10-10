@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
 
 namespace OreSupport {
@@ -27,18 +26,10 @@ namespace OreSupport {
       Drawer.AddText(box, title, text);
     }
   }
-  public class Visual {
-    public static MineRock5 Tracked = null;
+  ///<summary>Code to check which parts are supported or supporting.</summary>
+  public class SupportChecker {
 
     private static Collider[] tempColliders = new Collider[128];
-    private static ISet<int> supportedAreas = new HashSet<int>();
-    private static void Clear(MineRock5 obj) {
-      if (!obj) return;
-      Drawer.Remove(obj, Tag.MineRock);
-      Drawer.Remove(obj, Tag.ClearedMineRock);
-      Drawer.Remove(obj, Tag.Destructible);
-
-    }
     private static IEnumerable<Collider> Filter(IEnumerable<Collider> colliders, MineRock5 obj, object area) {
       var areaCollider = Patch.Collider(area);
       return colliders.Where(collider => {
@@ -59,17 +50,10 @@ namespace OreSupport {
         return colliders.Any(collider => Patch.MineRock5_GetSupport(obj, collider));
       }
     }
-
-    public static void DrawSupport(MineRock5 obj, bool update) {
-      Clear(Visual.Tracked);
-      Visual.Tracked = obj;
-      if (!update) supportedAreas.Clear();
-      if (Settings.LineWidth == 0 || Settings.MaxBoxes == 0) return;
+    ///<summary>Returns bounding boxes of supporting and supported parts.</summary>
+    public static IList<Box> CalculateBoundingBoxes(MineRock5 obj, ISet<int> supportedAreas) {
       var areas = Patch.HitAreas(obj);
-      if (areas.Count() < Settings.MinSize) return;
-      if (areas.Where(area => Patch.Health(area) > 0f).Count() > Settings.MaxParts) return;
       var index = -1;
-      var supportedCount = 0;
       var groundLayer = Patch.GroundLayer(obj);
       var boxes = new List<Box>();
       foreach (var area in areas) {
@@ -86,29 +70,12 @@ namespace OreSupport {
         var supported = CheckColliders(colliders, obj, boxes, groundLayer);
         var wasSupported = supportedAreas.Contains(index);
         if (supported || wasSupported) {
+          if (supported) supportedAreas.Add(index);
           var tag = supported ? Tag.MineRock : Tag.ClearedMineRock;
           boxes.Add(new Box(tag, obj.gameObject, pos, size, "Size: " + Format.Coordinates(2 * size, "F1"), "Index: " + Format.Int(index)));
         }
       }
-      if (supportedCount > Settings.MaxBoxes) return;
-      foreach (var box in boxes) box.Draw();
-    }
-  }
-  [HarmonyPatch(typeof(MineRock5), "UpdateSupport")]
-  public class MineRock5_Support {
-    public static void Postfix(MineRock5 __instance) => Visual.DrawSupport(__instance, false);
-  }
-
-  [HarmonyPatch(typeof(MineRock5), "RPC_Damage")]
-  public class MineRock5_Damage {
-    public static void Postfix(MineRock5 __instance, ref bool ___m_haveSetupBounds) {
-      if (Visual.Tracked == null) {
-        if (!___m_haveSetupBounds) {
-          Patch.MineRock5_SetupColliders(__instance);
-          ___m_haveSetupBounds = true;
-        }
-        Visual.DrawSupport(__instance, false);
-      }
+      return boxes;
     }
   }
 }

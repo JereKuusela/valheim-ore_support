@@ -3,27 +3,23 @@ using HarmonyLib;
 using UnityEngine;
 
 namespace OreSupport {
-  [BepInPlugin("valheim.jerekuusela.ore_support", "OreSupport", "1.2.0.0")]
+  [BepInPlugin("valheim.jerekuusela.ore_support", "OreSupport", "1.3.0.0")]
   public class OreSupport : BaseUnityPlugin {
     public void Awake() {
       Settings.Init(Config);
       var harmony = new Harmony("valheim.jerekuusela.ore_support");
       harmony.PatchAll();
-    }
-    private static float timer = 0;
-    private static bool IsValid(MonoBehaviour obj) {
-      if (!obj) return false;
-      var nView = Patch.Nview(obj);
-      if (!nView) return false;
-      return nView.IsValid();
+      InitCommands();
     }
     void LateUpdate() {
-      timer += Time.deltaTime;
-      if (timer >= Settings.RefreshInterval) {
-        timer -= Settings.RefreshInterval;
-        if (!IsValid(Visual.Tracked)) Visual.Tracked = null;
-        if (Visual.Tracked) Visual.DrawSupport(Visual.Tracked, true);
-      }
+      SupportUpdater.RefreshSupport(Time.deltaTime);
+    }
+
+    private static void InitCommands() {
+      new Terminal.ConsoleCommand("ore_support", "Toggles mine rock support visibility.", delegate (Terminal.ConsoleEventArgs args) {
+        Settings.configEnable.Value = !Settings.Enable;
+        SupportUpdater.UpdateSupport();
+      });
     }
   }
 }

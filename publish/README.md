@@ -1,6 +1,6 @@
 # Ore Support
 
-Shows supporting bounding boxes for mine rocks which makes collapsiong them much easier. By default only activates when only some parts remain.
+Shows supporting bounding boxes for mine rocks which makes collapsing them much easier. By default only activates when only some parts remain.
 
 # Manual Installation
 
@@ -21,22 +21,29 @@ This mod will visualize those boxes after enough of the deposit has been destroy
 - Green color indicates a part that is no longer supported but the game hasn't updated its state yet (only updated when a part is destroyed).
 - Yellow color indicates a object that is supporting the deposit.
 
+For quickly toggling the mod on/off with a keypress, use "bind KEY ore_support".
+
 # Configuration
 
 After first start up, the config file can be found in the \<GameDirectory\>\BepInEx\config\ folder:
 
-- Refresh interval: How often the tool checks the support of each part. Lower values makes the boxes update faster but lowers performance.
-- Max boxes: The maximum amount of boxes to show. This is intended to improve performance and reduce clutter as initially most pieces support the mine rock.
-- Min size: Minimum amount of total parts in the mine rock to show any boxes. This is intended to prevent boxes on smaller rocks.
-- Max parts: The maximum amount of remaining parts to show. This is intended to improve performance and reduce clutter as initially most pieces support the mine rock.
+- Enable: Whether this mod is enabled. Can be toggled with command ore_support.
 - Line width: Width of the lines. Increase for more visibility, reduce for less clutter.
-- Supported color: Color of the supported parts.
-- Unsupported color: Color of the unsupported parts.
-- Supporting objectsg: If enabled, supporting objects are shown.
+- Max boxes: The maximum amount of boxes to show. This is intended to improve performance and reduce clutter as initially most pieces support the mine rock.
+- Max parts: The maximum amount of remaining parts to show. This is intended to improve performance and reduce clutter as initially most pieces support the mine rock.
+- Min size: Minimum amount of total parts in the mine rock to show any boxes. This is intended to prevent boxes on smaller rocks.
+- Refresh interval: How often the tool checks the support of each part. Lower values makes the boxes update faster but lowers performance.
 - Support color: Color of the supporting objects.
+- Supported color: Color of the supported parts.
+- Supporting objects: If enabled, supporting objects are shown.
+- Unsupported color: Color of the unsupported parts.
 
 # Changelog
 
+- v1.3.0:
+	- Added setting to enable or disable this mod.
+	- Added command "ore_support" to toggle enable/disable.
+	- More performance tweaks.
 - v1.2.0:
 	- Added setting to show boxes only after only certain amount of parts exist.
 	- Added setting to disable supporting objects.
