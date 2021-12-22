@@ -22,6 +22,8 @@ namespace OreSupport {
     public static Color MineRockColor => ParseColor(configMineRockColor.Value);
     public static ConfigEntry<string> configClearedMineRockColor;
     public static Color ClearedMineRockColor => ParseColor(configClearedMineRockColor.Value);
+    public static ConfigEntry<string> configCriticalMineRockColor;
+    public static Color CriticalMineRockColor => ParseColor(configCriticalMineRockColor.Value);
     public static ConfigEntry<string> configDestructibleColor;
     public static Color DestructibleColor => ParseColor(configDestructibleColor.Value);
     public static ConfigEntry<bool> configShowSupporting;
@@ -44,6 +46,10 @@ namespace OreSupport {
       configMineRockColor = config.Bind(section, "Supported color", "red", "Color of supported pieces.");
       configMineRockColor.SettingChanged += (s, e) => {
         Drawer.SetColor(Tag.MineRock, MineRockColor);
+      };
+      configCriticalMineRockColor = config.Bind(section, "Critical supported color", "orange", "Color of pieces that will cause the rock to collapse.");
+      configCriticalMineRockColor.SettingChanged += (s, e) => {
+        Drawer.SetColor(Tag.CriticalMineRock, CriticalMineRockColor);
       };
       configClearedMineRockColor = config.Bind(section, "Unsupported color", "green", "Color of pieces that are no longer supported.");
       configClearedMineRockColor.SettingChanged += (s, e) => {

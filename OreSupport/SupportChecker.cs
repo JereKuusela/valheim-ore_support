@@ -19,9 +19,20 @@ namespace OreSupport {
     private string text;
     private string tag;
     private GameObject obj;
+    public bool IsSupported => tag == Tag.MineRock;
+    public void SetSupportedAsCritical() {
+      if (tag == Tag.MineRock) tag = Tag.CriticalMineRock;
+    }
+    public void SetMineRockAsCritical() {
+      if (tag == Tag.MineRock || tag == Tag.ClearedMineRock) tag = Tag.CriticalMineRock;
+    }
 
     public void Draw() {
-      var color = tag == Tag.MineRock ? Settings.MineRockColor : tag == Tag.ClearedMineRock ? Settings.ClearedMineRockColor : Settings.DestructibleColor;
+      var color =
+        tag == Tag.CriticalMineRock ? Settings.CriticalMineRockColor :
+        tag == Tag.MineRock ? Settings.MineRockColor :
+        tag == Tag.ClearedMineRock ? Settings.ClearedMineRockColor :
+        Settings.DestructibleColor;
       var box = Drawer.DrawBox(tag, obj, color, Settings.LineWidth, position, size);
       Drawer.AddText(box, title, text);
     }

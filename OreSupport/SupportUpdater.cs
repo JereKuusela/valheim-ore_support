@@ -13,6 +13,7 @@ namespace OreSupport {
       Drawer.Remove(obj, Tag.MineRock);
       Drawer.Remove(obj, Tag.ClearedMineRock);
       Drawer.Remove(obj, Tag.Destructible);
+      Drawer.Remove(obj, Tag.CriticalMineRock);
     }
     private static bool IsValid(MonoBehaviour obj) {
       if (!obj) return false;
@@ -47,6 +48,12 @@ namespace OreSupport {
       if (areas.Where(area => Patch.Health(area) > 0f).Count() > Settings.MaxParts) return;
       var boxes = SupportChecker.CalculateBoundingBoxes(Tracked, supportedAreas);
       if (boxes.Count > Settings.MaxBoxes) return;
+      var onlySupport = boxes.Count(box => box.IsSupported) == 1;
+      var noSupport = boxes.Count(box => box.IsSupported) == 0;
+      if (noSupport)
+        foreach (var box in boxes) box.SetMineRockAsCritical();
+      else if (onlySupport)
+        foreach (var box in boxes) box.SetSupportedAsCritical();
       foreach (var box in boxes) box.Draw();
     }
   }
