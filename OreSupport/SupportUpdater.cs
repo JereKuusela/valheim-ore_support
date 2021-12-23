@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
-using UnityEngine;
 
 namespace OreSupport {
   public class SupportUpdater {
@@ -15,9 +14,9 @@ namespace OreSupport {
       Drawer.Remove(obj, Tag.Destructible);
       Drawer.Remove(obj, Tag.CriticalMineRock);
     }
-    private static bool IsValid(MonoBehaviour obj) {
+    private static bool IsValid(MineRock5 obj) {
       if (!obj) return false;
-      var nView = Patch.Nview(obj);
+      var nView = obj.m_nview;
       if (!nView) return false;
       return nView.IsValid();
     }
@@ -43,9 +42,9 @@ namespace OreSupport {
       }
       if (!Settings.Enable) return;
       if (Settings.LineWidth == 0 || Settings.MaxBoxes == 0) return;
-      var areas = Patch.HitAreas(Tracked);
+      var areas = Tracked.m_hitAreas;
       if (areas.Count() < Settings.MinSize) return;
-      if (areas.Where(area => Patch.Health(area) > 0f).Count() > Settings.MaxParts) return;
+      if (areas.Where(area => area.m_health > 0f).Count() > Settings.MaxParts) return;
       var boxes = SupportChecker.CalculateBoundingBoxes(Tracked, supportedAreas);
       if (boxes.Count > Settings.MaxBoxes) return;
       var onlySupport = boxes.Count(box => box.IsSupported) == 1;
@@ -60,11 +59,11 @@ namespace OreSupport {
   // Starts tracking the support when hitting a mine rock.
   [HarmonyPatch(typeof(MineRock5), "RPC_Damage")]
   public class MineRock5_Damage {
-    public static void Postfix(MineRock5 __instance, ref bool ___m_haveSetupBounds) {
+    public static void Postfix(MineRock5 __instance) {
       if (SupportUpdater.Tracked == __instance) return;
-      if (!___m_haveSetupBounds) {
-        Patch.MineRock5_SetupColliders(__instance);
-        ___m_haveSetupBounds = true;
+      if (!__instance.m_haveSetupBounds) {
+        __instance.SetupColliders();
+        __instance.m_haveSetupBounds = true;
       }
       SupportUpdater.DrawSupport(__instance);
     }

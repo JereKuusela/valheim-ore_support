@@ -41,10 +41,9 @@ namespace OreSupport {
   public class SupportChecker {
 
     private static Collider[] tempColliders = new Collider[128];
-    private static IEnumerable<Collider> Filter(IEnumerable<Collider> colliders, MineRock5 obj, object area) {
-      var areaCollider = Patch.Collider(area);
+    private static IEnumerable<Collider> Filter(IEnumerable<Collider> colliders, MineRock5 obj, MineRock5.HitArea area) {
       return colliders.Where(collider => {
-        if (collider == areaCollider || collider.attachedRigidbody != null || collider.isTrigger) return false;
+        if (collider == area.m_collider || collider.attachedRigidbody != null || collider.isTrigger) return false;
         var destructible = collider.gameObject.GetComponentInParent<IDestructible>();
         if ((object)destructible == obj) return false;
         return true;
@@ -52,33 +51,30 @@ namespace OreSupport {
     }
     private static bool CheckColliders(IEnumerable<Collider> colliders, MineRock5 obj, List<Box> boxes, int groundLayer) {
       if (Settings.ShowSupporting) {
-        var supportingColliders = colliders.Where(collider => Patch.MineRock5_GetSupport(obj, collider));
+        var supportingColliders = colliders.Where(obj.GetSupport);
         var objectColliders = supportingColliders.Where(collider => collider.gameObject.layer != groundLayer);
         foreach (var collider in objectColliders)
           boxes.Add(new Box(Tag.Destructible, obj.gameObject, collider.bounds.center - obj.transform.position, collider.bounds.extents, "Supports mine rock", ""));
         return supportingColliders.Count() > 0;
       } else {
-        return colliders.Any(collider => Patch.MineRock5_GetSupport(obj, collider));
+        return colliders.Any(obj.GetSupport);
       }
     }
     ///<summary>Returns bounding boxes of supporting and supported parts.</summary>
     public static IList<Box> CalculateBoundingBoxes(MineRock5 obj, ISet<int> supportedAreas) {
-      var areas = Patch.HitAreas(obj);
       var index = -1;
-      var groundLayer = Patch.GroundLayer(obj);
       var boxes = new List<Box>();
-      foreach (var area in areas) {
+      foreach (var area in obj.m_hitAreas) {
         index++;
-        var health = Patch.Health(area);
+        var health = area.m_health;
         if (health <= 0f) continue;
-        var bounds = Patch.Bound(area);
-        var pos = Patch.Pos(bounds);
-        var size = Patch.Size(bounds);
-        var rot = Patch.Rot(bounds);
-        var mask = Patch.RayMask(obj);
-        var num = Physics.OverlapBoxNonAlloc(obj.transform.position + pos, size, tempColliders, rot, mask);
+        var bounds = area.m_bound;
+        var pos = bounds.m_pos;
+        var size = bounds.m_size;
+        var rot = bounds.m_rot;
+        var num = Physics.OverlapBoxNonAlloc(obj.transform.position + pos, size, tempColliders, rot, MineRock5.m_rayMask);
         var colliders = Filter(tempColliders.Take(num), obj, area);
-        var supported = CheckColliders(colliders, obj, boxes, groundLayer);
+        var supported = CheckColliders(colliders, obj, boxes, MineRock5.m_groundLayer);
         var wasSupported = supportedAreas.Contains(index);
         if (supported || wasSupported) {
           if (supported) supportedAreas.Add(index);
