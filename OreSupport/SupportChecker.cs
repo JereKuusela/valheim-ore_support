@@ -20,12 +20,6 @@ namespace OreSupport {
     private string tag;
     private GameObject obj;
     public bool IsSupported => tag == Tag.MineRock;
-    public void SetSupportedAsCritical() {
-      if (tag == Tag.MineRock) tag = Tag.CriticalMineRock;
-    }
-    public void SetMineRockAsCritical() {
-      if (tag == Tag.MineRock || tag == Tag.ClearedMineRock) tag = Tag.CriticalMineRock;
-    }
 
     public void Draw() {
       var color =
@@ -62,12 +56,10 @@ namespace OreSupport {
     }
     ///<summary>Returns bounding boxes of supporting and supported parts.</summary>
     public static IList<Box> CalculateBoundingBoxes(MineRock5 obj, ISet<int> supportedAreas) {
-      var index = -1;
       var boxes = new List<Box>();
-      foreach (var area in obj.m_hitAreas) {
-        index++;
-        var health = area.m_health;
-        if (health <= 0f) continue;
+      var index = 0;
+      var indices = obj.m_hitAreas.ToDictionary(area => area, (_ => index++));
+      var supports = obj.m_hitAreas.Where(area => area.m_health > 0f).ToDictionary(area => area, (area => {
         var bounds = area.m_bound;
         var pos = bounds.m_pos;
         var size = bounds.m_size;
@@ -75,11 +67,27 @@ namespace OreSupport {
         var num = Physics.OverlapBoxNonAlloc(obj.transform.position + pos, size, tempColliders, rot, MineRock5.m_rayMask);
         var colliders = Filter(tempColliders.Take(num), obj, area);
         var supported = CheckColliders(colliders, obj, boxes, MineRock5.m_groundLayer);
+        return supported;
+      }));
+      var totalParts = supports.Count();
+      var totalSupported = supports.Where(kvp => kvp.Value).Count();
+      foreach (var kvp in supports) {
+        index = indices[kvp.Key];
+        var supported = kvp.Value;
         var wasSupported = supportedAreas.Contains(index);
+        var bounds = kvp.Key.m_bound;
+        var pos = bounds.m_pos;
+        var size = bounds.m_size;
         if (supported || wasSupported) {
           if (supported) supportedAreas.Add(index);
           var tag = supported ? Tag.MineRock : Tag.ClearedMineRock;
-          boxes.Add(new Box(tag, obj.gameObject, pos, size, "Size: " + Format.Coordinates(2 * size, "F1"), "Index: " + Format.Int(index)));
+          if (totalSupported == 0)
+            tag = Tag.CriticalMineRock;
+          if (totalSupported == 1 && supported)
+            tag = Tag.CriticalMineRock;
+          var text = "Index: " + Format.Int(index);
+          text += "\nSupported: " + Format.Int(totalSupported) + " / " + Format.Int(totalParts);
+          boxes.Add(new Box(tag, obj.gameObject, pos, size, "Size: " + Format.Coordinates(2 * size, "F1"), text));
         }
       }
       return boxes;

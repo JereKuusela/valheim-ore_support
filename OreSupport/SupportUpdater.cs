@@ -16,6 +16,7 @@ namespace OreSupport {
     }
     private static bool IsValid(MineRock5 obj) {
       if (!obj) return false;
+      if (!obj.m_supportCheck) return false;
       var nView = obj.m_nview;
       if (!nView) return false;
       return nView.IsValid();
@@ -44,15 +45,8 @@ namespace OreSupport {
       if (Settings.LineWidth == 0 || Settings.MaxBoxes == 0) return;
       var areas = Tracked.m_hitAreas;
       if (areas.Count() < Settings.MinSize) return;
-      if (areas.Where(area => area.m_health > 0f).Count() > Settings.MaxParts) return;
       var boxes = SupportChecker.CalculateBoundingBoxes(Tracked, supportedAreas);
       if (boxes.Count > Settings.MaxBoxes) return;
-      var onlySupport = boxes.Count(box => box.IsSupported) == 1;
-      var noSupport = boxes.Count(box => box.IsSupported) == 0;
-      if (noSupport)
-        foreach (var box in boxes) box.SetMineRockAsCritical();
-      else if (onlySupport)
-        foreach (var box in boxes) box.SetSupportedAsCritical();
       foreach (var box in boxes) box.Draw();
     }
   }
