@@ -7,6 +7,7 @@ public partial class Settings {
     if (ColorUtility.TryParseHtmlString(color, out var parsed)) return parsed;
     return Color.white;
   }
+#nullable disable
   public static ConfigEntry<float> configLineWidth;
   public static float LineWidth => Math.Max(0.01f, configLineWidth.Value);
   public static ConfigEntry<float> configRefreshInterval;
@@ -27,6 +28,8 @@ public partial class Settings {
   public static bool ShowSupporting => configShowSupporting.Value;
   public static ConfigEntry<bool> configEnable;
   public static bool Enable => configEnable.Value;
+#nullable enable
+
   public static void Init(ConfigFile config) {
     var section = "General";
     configEnable = config.Bind(section, "Enabled", true, "Whether this mod is enabled. Can be toggled with command ore_support.");

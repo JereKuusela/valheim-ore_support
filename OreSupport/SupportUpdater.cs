@@ -3,11 +3,11 @@ using System.Linq;
 using HarmonyLib;
 namespace OreSupport;
 public class SupportUpdater {
-  public static MineRock5 Tracked = null;
+  public static MineRock5? Tracked = null;
   private static float timer = 0;
   private static HashSet<int> supportedAreas = new();
-  private static void Clear(MineRock5 obj) {
-    if (!obj) return;
+  private static void Clear(MineRock5? obj) {
+    if (!obj || obj == null) return;
     Drawer.Remove(obj, Tag.MineRock);
     Drawer.Remove(obj, Tag.ClearedMineRock);
     Drawer.Remove(obj, Tag.Destructible);
@@ -35,6 +35,7 @@ public class SupportUpdater {
   }
   public static void UpdateSupport() {
     timer = 0f;
+    if (Tracked == null) return;
     Clear(Tracked);
     if (!IsValid(Tracked)) {
       Tracked = null;

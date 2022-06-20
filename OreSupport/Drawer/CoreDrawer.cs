@@ -4,19 +4,18 @@ using UnityEngine;
 namespace OreSupport;
 [HarmonyPatch(typeof(Player), nameof(Player.UpdateHover))]
 public class Player_AddHoverForVisuals {
-
   /// <summary>Extra hover search for drawn objects if no other hover object.</summary>
   public static void Postfix(ref GameObject ___m_hovering, ref GameObject ___m_hoveringCreature) {
-    if (___m_hovering || ___m_hoveringCreature) return;
-    var distance = 50f;
-    var mask = LayerMask.GetMask(new[] { Constants.TriggerLayer });
+    if (___m_hovering || ___m_hoveringCreature || !Settings.Enable || !SupportUpdater.Tracked) return;
+    var distance = 100f;
+    var mask = LayerMask.GetMask(Constants.TriggerLayer);
     var hits = Physics.RaycastAll(GameCamera.instance.transform.position, GameCamera.instance.transform.forward, distance, mask);
     // Reverse search is used to find edge when inside colliders.
     var reverseHits = Physics.RaycastAll(GameCamera.instance.transform.position + GameCamera.instance.transform.forward * distance, -GameCamera.instance.transform.forward, distance, mask);
     hits = hits.AddRangeToArray(reverseHits);
     Array.Sort<RaycastHit>(hits, (RaycastHit x, RaycastHit y) => x.distance.CompareTo(y.distance));
     foreach (var hit in hits) {
-      if (hit.collider.GetComponent<Hoverable>() != null) {
+      if (hit.collider.GetComponent<Visualization>() != null) {
         ___m_hovering = hit.collider.gameObject;
         return;
       }
@@ -28,12 +27,12 @@ public class Player_AddHoverForVisuals {
 public class StaticText : MonoBehaviour, Hoverable {
   public string GetHoverText() => Format.String(title) + "\n" + text;
   public string GetHoverName() => title;
-  public string title;
-  public string text;
+  public string title = "";
+  public string text = "";
 }
 /// <summary>Provides a way to distinguish renderers.</summary>
 public class Visualization : MonoBehaviour {
-  public string customTag;
+  public string customTag = "";
 }
 
 public partial class Drawer : Component {
@@ -54,7 +53,7 @@ public partial class Drawer : Component {
   private static LineRenderer CreateRenderer(GameObject obj, Color color, float width) {
     var renderer = obj.AddComponent<LineRenderer>();
     renderer.useWorldSpace = false;
-    Material material = new(Shader.Find("Particles/Standard Unlit"));
+    Material material = new(Shader.Find("Particles/Standard Unlit2"));
     material.SetColor("_Color", color);
     material.SetFloat("_BlendOp", (float)UnityEngine.Rendering.BlendOp.Subtract);
     Texture2D texture = new(1, 1);
