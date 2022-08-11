@@ -2,12 +2,7 @@
 
 Shows supporting bounding boxes for mine rocks which makes collapsing them much easier.
 
-# Manual Installation
-
-1. Install the [BepInExPack Valheim](https://valheim.thunderstore.io/package/denikson/BepInExPack_Valheim).
-2. Download the latest zip.
-3. Extract it in the \<GameDirectory\>\BepInEx\plugins\ folder.
-4. Optionally also install the [Configuration manager](https://valheim.thunderstore.io/package/Azumatt/Official_BepInEx_ConfigurationManager/).
+Install on the client (modding [guide](https://youtu.be/L9ljm2eKLrk)).
 
 # Instructions
 
@@ -42,33 +37,33 @@ After first start up, the config file can be found in the \<GameDirectory\>\BepI
 
 # Changelog
 
-- v1.6:
+- v1.6
 	- Changes the GUID which resets the configuration.
 	- Fixes the interact distance being increased.
 	- Fixes visuals not showing with the new Unity version.
 
-- v1.5:
+- v1.5
 	- Added different color for the critical node that collapse the mine rock.
 
-- v1.4:
+- v1.4
 	- Increased default values for Min size (to disable for Muddy scrap piles) and Max boxes/parts to always show.
 
-- v1.3:
+- v1.3
 	- Added setting to enable or disable this mod.
 	- Added command "ore_support" to toggle enable/disable.
 	- More performance tweaks.
 
-- v1.2:
+- v1.2
 	- Added setting to show boxes only after only certain amount of parts exist.
 	- Added setting to disable supporting objects.
 	- Performance improvements.
 
-- v1.1:
+- v1.1
 	- Added visual for objects that are supporting the mine rock.
 	- Added automatic refresh without having to always destroy a part (collapsing still requires destroying a part).
 	- Added different color for pieces that are no longer supported (but not yet updated by the game).
 	- Added support for showing boxes when just hitting a deposit (instead of having to break a part).
 	- Numeric settings now have min and max values to make configuring them easier.
 
-- v1.0:
+- v1.0
 	- Initial release
