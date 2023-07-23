@@ -4,20 +4,20 @@ using UnityEngine;
 namespace OreSupport;
 ///<summary>Performance: Store boxes to delay drawing since they may be hidden too.</summary>
 public class Box {
-  public Box(string tag, GameObject obj, Vector3 pos, Vector3 size, string title, string text = "") {
+  public Box(string tag, GameObject obj, Vector3 position, Vector3 size, string title, string text = "") {
     this.tag = tag;
     this.obj = obj;
-    this.position = pos;
+    this.position = position;
     this.size = size;
     this.title = title;
     this.text = text;
   }
   private Vector3 position;
   private Vector3 size;
-  private string title;
-  private string text;
-  private string tag;
-  private GameObject obj;
+  private readonly string title;
+  private readonly string text;
+  private readonly string tag;
+  private readonly GameObject obj;
   public bool IsSupported => tag == Tag.MineRock;
 
   public void Draw() {
@@ -33,7 +33,7 @@ public class Box {
 ///<summary>Code to check which parts are supported or supporting.</summary>
 public class SupportChecker {
 
-  private static Collider[] tempColliders = new Collider[128];
+  private static readonly Collider[] tempColliders = new Collider[128];
   private static IEnumerable<Collider> Filter(IEnumerable<Collider> colliders, MineRock5 obj, MineRock5.HitArea area) {
     return colliders.Where(collider => {
       if (collider == area.m_collider || collider.attachedRigidbody != null || collider.isTrigger) return false;

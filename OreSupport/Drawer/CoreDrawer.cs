@@ -38,9 +38,10 @@ public class Visualization : MonoBehaviour {
 public partial class Drawer : Component {
   ///<summary>Creates the base object for drawing.</summary>
   private static GameObject CreateObject(GameObject parent, string tag = "", bool fixRotation = false) {
-    GameObject obj = new();
-    obj.layer = LayerMask.NameToLayer(Constants.TriggerLayer);
-    obj.name = tag;
+    GameObject obj = new() {
+      layer = LayerMask.NameToLayer(Constants.TriggerLayer),
+      name = tag
+    };
     obj.transform.parent = parent.transform;
     obj.transform.localPosition = Vector3.zero;
     if (!fixRotation)

@@ -13,9 +13,11 @@ public class OreSupport : BaseUnityPlugin {
     harmony.PatchAll();
     InitCommands();
   }
+#pragma warning disable IDE0051
   void LateUpdate() {
     SupportUpdater.RefreshSupport(Time.deltaTime);
   }
+#pragma warning restore IDE0051
 
   private static void InitCommands() {
     new Terminal.ConsoleCommand("ore_support", "Toggles mine rock support visibility.", (args) => {
