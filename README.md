@@ -40,3 +40,4 @@ After first start up, the config file can be found in the \<GameDirectory\>\BepI
 Sources: [GitHub](https://github.com/JereKuusela/valheim-ore_support)
 
 Donations: [Buy me a computer](https://www.buymeacoffee.com/jerekuusela)
+ 
