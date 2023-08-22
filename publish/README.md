@@ -4,7 +4,7 @@ Shows supporting bounding boxes for mine rocks which makes collapsing them much 
 
 Install on the client (modding [guide](https://youtu.be/L9ljm2eKLrk)).
 
-# Instructions
+## Instructions
 
 Use `/bind [key code] ore_support` to quickly toggle the mod on/off with a keypress.
 
@@ -19,7 +19,7 @@ This mod visualizes those boxes:
 - Green color indicates a part that is no longer supported but the game hasn't updated its state yet.
 - Yellow color indicates a object that is supporting the deposit.
 
-# Configuration
+## Configuration
 
 After first start up, the config file can be found in the \<GameDirectory\>\BepInEx\config\ folder:
 
@@ -35,35 +35,8 @@ After first start up, the config file can be found in the \<GameDirectory\>\BepI
 - Supporting objects: If enabled, supporting objects are shown.
 - Unsupported color: Color of the unsupported parts.
 
-# Changelog
+## Credits
 
-- v1.6
-	- Changes the GUID which resets the configuration.
-	- Fixes the interact distance being increased.
-	- Fixes visuals not showing with the new Unity version.
+Sources: [GitHub](https://github.com/JereKuusela/valheim-ore_support)
 
-- v1.5
-	- Added different color for the critical node that collapse the mine rock.
-
-- v1.4
-	- Increased default values for Min size (to disable for Muddy scrap piles) and Max boxes/parts to always show.
-
-- v1.3
-	- Added setting to enable or disable this mod.
-	- Added command "ore_support" to toggle enable/disable.
-	- More performance tweaks.
-
-- v1.2
-	- Added setting to show boxes only after only certain amount of parts exist.
-	- Added setting to disable supporting objects.
-	- Performance improvements.
-
-- v1.1
-	- Added visual for objects that are supporting the mine rock.
-	- Added automatic refresh without having to always destroy a part (collapsing still requires destroying a part).
-	- Added different color for pieces that are no longer supported (but not yet updated by the game).
-	- Added support for showing boxes when just hitting a deposit (instead of having to break a part).
-	- Numeric settings now have min and max values to make configuring them easier.
-
-- v1.0
-	- Initial release
+Donations: [Buy me a computer](https://www.buymeacoffee.com/jerekuusela)
