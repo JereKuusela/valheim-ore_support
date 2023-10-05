@@ -7,7 +7,7 @@ public class OreSupport : BaseUnityPlugin
 {
   const string GUID = "ore_support";
   const string NAME = "Ore Support";
-  const string VERSION = "1.7";
+  const string VERSION = "1.8";
   public void Awake()
   {
     Settings.Init(Config);
