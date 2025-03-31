@@ -1,6 +1,6 @@
 {
   "name": "Ore_Support",
-  "version_number": "1.9.0",
+  "version_number": "1.11.0",
   "website_url": "https://github.com/JereKuusela/valheim-ore_support",
   "description": "5hows supporting bounding boxes for mine rocks which makes collapsing them much easier.",
   "dependencies": [

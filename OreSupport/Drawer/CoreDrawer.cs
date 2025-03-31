@@ -1,49 +1,36 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using HarmonyLib;
 using UnityEngine;
 namespace OreSupport;
-[HarmonyPatch(typeof(Player), nameof(Player.UpdateHover))]
-public class Player_AddHoverForVisuals
+
+
+public partial class Drawer
 {
-  /// <summary>Extra hover search for drawn objects if no other hover object.</summary>
-  public static void Postfix(ref GameObject ___m_hovering, ref GameObject ___m_hoveringCreature)
+  private static readonly Texture2D Texture = new(1, 1);
+  private static Shader LineShader => lineShader
+    ??= Resources.FindObjectsOfTypeAll<Shader>().FirstOrDefault(shader => shader.name == shaderName) ?? Resources.FindObjectsOfTypeAll<Shader>().FirstOrDefault(shader => shader.name == "Sprites/Default") ?? throw new Exception("Shader not found.");
+  private static Shader? lineShader;
+  private static string shaderName = "Sprites/Default";
+  public static void SetShader(string name)
   {
-    if (___m_hovering || ___m_hoveringCreature || !Settings.Enable || !SupportUpdater.Tracked) return;
-    var distance = 100f;
-    var mask = LayerMask.GetMask(Constants.TriggerLayer);
-    var hits = Physics.RaycastAll(GameCamera.instance.transform.position, GameCamera.instance.transform.forward, distance, mask);
-    // Reverse search is used to find edge when inside colliders.
-    var reverseHits = Physics.RaycastAll(GameCamera.instance.transform.position + GameCamera.instance.transform.forward * distance, -GameCamera.instance.transform.forward, distance, mask);
-    hits = hits.AddRangeToArray(reverseHits);
-    Array.Sort<RaycastHit>(hits, (RaycastHit x, RaycastHit y) => x.distance.CompareTo(y.distance));
-    foreach (var hit in hits)
-    {
-      if (hit.collider.GetComponent<Visualization>() != null)
-      {
-        ___m_hovering = hit.collider.gameObject;
-        return;
-      }
-    }
+    shaderName = name;
+    lineShader = null;
+    materials.Clear();
+    foreach (var obj in Utils.GetVisualizations()) ChangeColor(obj.gameObject);
   }
-}
+  private static readonly Dictionary<string, Color> colors = [];
+  public static Color GetColor(string tag) => colors.ContainsKey(tag) ? colors[tag] : Color.white;
+  private static void ChangeColor(GameObject obj)
+  {
+    var renderer = obj.GetComponent<LineRenderer>();
+    if (renderer) renderer.sharedMaterial = GetMaterial(GetColor(obj.name));
+  }
+  public static void Init()
+  {
+    Texture.SetPixel(0, 0, Color.gray);
+  }
 
-/// <summary>Custom text that also shows the title.</summary>
-public class StaticText : MonoBehaviour, Hoverable
-{
-  public string GetHoverText() => Format.String(title) + "\n" + text;
-  public string GetHoverName() => title;
-  public string title = "";
-  public string text = "";
-}
-/// <summary>Provides a way to distinguish renderers.</summary>
-public class Visualization : MonoBehaviour
-{
-  public string customTag = "";
-}
-
-public partial class Drawer : Component
-{
   ///<summary>Creates the base object for drawing.</summary>
   private static GameObject CreateObject(GameObject parent, string tag = "", bool fixRotation = false)
   {
@@ -60,30 +47,32 @@ public partial class Drawer : Component
       AddTag(obj, tag);
     return obj;
   }
+  private static readonly Dictionary<Color, Material> materials = [];
+  private static Material GetMaterial(Color color)
+  {
+    if (materials.ContainsKey(color)) return materials[color];
+    var material = new Material(LineShader);
+    material.SetColor("_Color", color);
+    material.SetFloat("_BlendOp", (float)UnityEngine.Rendering.BlendOp.Subtract);
+    material.SetTexture("_MainTex", Texture);
+    materials[color] = material;
+    return material;
+  }
   ///<summary>Creates the line renderer object.</summary>
   private static LineRenderer CreateRenderer(GameObject obj, Color color, float width)
   {
     var renderer = obj.AddComponent<LineRenderer>();
     renderer.useWorldSpace = false;
-    Material material = new(LineShader);
-    material.SetColor("_Color", color);
-    material.SetFloat("_BlendOp", (float)UnityEngine.Rendering.BlendOp.Subtract);
-    Texture2D texture = new(1, 1);
-    texture.SetPixel(0, 0, Color.gray);
-    material.SetTexture("_MainTex", texture);
-    renderer.material = material;
+    renderer.sharedMaterial = GetMaterial(color);
     renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
     renderer.widthMultiplier = width / 100f;
     return renderer;
   }
-  private static Shader LineShader => lineShader
-    ??= Resources.FindObjectsOfTypeAll<Shader>().FirstOrDefault(shader => shader.name == "Particles/Standard Unlit2") ?? throw new Exception("Shader not found.");
-  private static Shader? lineShader;
   ///<summary>Changes object color.</summary>
   private static void ChangeColor(GameObject obj, Color color)
   {
     foreach (var renderer in obj.GetComponentsInChildren<LineRenderer>(true))
-      renderer.material.SetColor("_Color", color);
+      renderer.sharedMaterial = GetMaterial(color);
   }
   ///<summary>Changes object line width.</summary>
   private static void ChangeLineWidth(GameObject obj, float width)
@@ -101,32 +90,31 @@ public partial class Drawer : Component
   ///<summary>Adds a tag to a given renderer so it can be found later.</summary>
   public static void AddTag(GameObject obj, string tag)
   {
-    obj.AddComponent<Visualization>().customTag = tag;
+    obj.AddComponent<Visualization>().Tag = tag;
   }
   ///<summary>Removes visuals with a given tag.</summary>
   public static void Remove(MonoBehaviour parent, string tag)
   {
     foreach (var obj in parent.GetComponentsInChildren<Visualization>(true))
     {
-      if (obj.customTag == tag) Destroy(obj.gameObject);
+      if (obj.Tag == tag) UnityEngine.Object.Destroy(obj.gameObject);
     }
   }
   ///<summary>Sets colors to visuals with a given tag.</summary>
   public static void SetColor(string tag, Color color)
   {
-    foreach (var customTag in Resources.FindObjectsOfTypeAll<Visualization>())
+    colors[tag] = color;
+    foreach (var obj in Utils.GetVisualizations(tag))
     {
-      if (customTag.customTag == tag)
-        ChangeColor(customTag.gameObject, color);
+      ChangeColor(obj.gameObject, color);
     }
   }
   ///<summary>Sets line width to visuals with a given tag.</summary>
   public static void SetLineWidth(string tag, float width)
   {
-    foreach (var customTag in Resources.FindObjectsOfTypeAll<Visualization>())
+    foreach (var obj in Utils.GetVisualizations(tag))
     {
-      if (customTag.customTag == tag)
-        ChangeLineWidth(customTag.gameObject, width);
+      ChangeLineWidth(obj.gameObject, width);
     }
   }
 }

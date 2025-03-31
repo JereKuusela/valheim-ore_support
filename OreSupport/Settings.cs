@@ -2,8 +2,10 @@ using System;
 using BepInEx.Configuration;
 using UnityEngine;
 namespace OreSupport;
-public partial class Settings {
-  private static Color ParseColor(string color) {
+public partial class Settings
+{
+  private static Color ParseColor(string color)
+  {
     if (ColorUtility.TryParseHtmlString(color, out var parsed)) return parsed;
     return Color.white;
   }
@@ -28,9 +30,11 @@ public partial class Settings {
   public static bool ShowSupporting => configShowSupporting.Value;
   public static ConfigEntry<bool> configEnable;
   public static bool Enable => configEnable.Value;
+  public static ConfigEntry<string> configShader;
 #nullable enable
 
-  public static void Init(ConfigFile config) {
+  public static void Init(ConfigFile config)
+  {
     var section = "General";
     configEnable = config.Bind(section, "Enabled", true, "Whether this mod is enabled. Can be toggled with command ore_support.");
     configRefreshInterval = config.Bind(section, "Refresh interval", 5f, new ConfigDescription("How often the support is checked. Higher values lower performance.", new AcceptableValueRange<float>(1f, 60f)));
@@ -38,25 +42,37 @@ public partial class Settings {
     configMinSize = config.Bind(section, "Minimum deposit size", 75, new ConfigDescription("Excludes smaller deposits like iron scrap piles.", new AcceptableValueRange<int>(0, 200)));
     configLineWidth = config.Bind(section, "Line width", 2f, new ConfigDescription("Line width of the bounding boxes.", new AcceptableValueRange<float>(1f, 100f)));
     configShowSupporting = config.Bind(section, "Supporting objects", true, "Show supporting objects. Enabling lowers performance.");
-    configLineWidth.SettingChanged += (s, e) => {
+    configLineWidth.SettingChanged += (s, e) =>
+    {
       Drawer.SetLineWidth(Tag.MineRock, LineWidth);
       Drawer.SetLineWidth(Tag.Destructible, LineWidth);
     };
     configMineRockColor = config.Bind(section, "Supported color", "red", "Color of supported pieces.");
-    configMineRockColor.SettingChanged += (s, e) => {
+    configMineRockColor.SettingChanged += (s, e) =>
+    {
       Drawer.SetColor(Tag.MineRock, MineRockColor);
     };
     configCriticalMineRockColor = config.Bind(section, "Critical supported color", "orange", "Color of pieces that will cause the rock to collapse.");
-    configCriticalMineRockColor.SettingChanged += (s, e) => {
+    configCriticalMineRockColor.SettingChanged += (s, e) =>
+    {
       Drawer.SetColor(Tag.CriticalMineRock, CriticalMineRockColor);
     };
     configClearedMineRockColor = config.Bind(section, "Unsupported color", "green", "Color of pieces that are no longer supported.");
-    configClearedMineRockColor.SettingChanged += (s, e) => {
+    configClearedMineRockColor.SettingChanged += (s, e) =>
+    {
       Drawer.SetColor(Tag.ClearedMineRock, ClearedMineRockColor);
     };
     configDestructibleColor = config.Bind(section, "Support color", "yellow", "Color of supporting objects.");
-    configDestructibleColor.SettingChanged += (s, e) => {
+    configDestructibleColor.SettingChanged += (s, e) =>
+    {
       Drawer.SetColor(Tag.Destructible, DestructibleColor);
     };
+    Drawer.SetColor(Tag.MineRock, MineRockColor);
+    Drawer.SetColor(Tag.CriticalMineRock, CriticalMineRockColor);
+    Drawer.SetColor(Tag.ClearedMineRock, ClearedMineRockColor);
+    Drawer.SetColor(Tag.Destructible, DestructibleColor);
+    configShader = config.Bind(section, "Shader", "Sprites/Default", "Shader for the line.");
+    configShader.SettingChanged += (s, e) => Drawer.SetShader(configShader.Value);
+    Drawer.SetShader(configShader.Value);
   }
 }
